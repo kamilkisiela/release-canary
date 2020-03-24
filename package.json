@@ -1,0 +1,43 @@
+{
+  "name": "action-release-canary",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Release canary version",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write **/*.ts",
+    "format-check": "prettier --check **/*.ts",
+    "prepack": "npm run bundle",
+    "bundle": "ncc build src/main.ts -o dist",
+    "test": "jest",
+    "all": "yarn build && yarn format && yarn bundle && yarn test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kamilkisiela/release-canary.git"
+  },
+  "keywords": [
+    "actions",
+    "pull-request",
+    "release",
+    "bot"
+  ],
+  "author": "Kamil Kisiela <kamil.kisiela@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "1.2.3"
+  },
+  "devDependencies": {
+    "@types/jest": "25.1.4",
+    "@types/node": "13.9.3",
+    "@typescript-eslint/parser": "2.25.0",
+    "@zeit/ncc": "0.22.0",
+    "jest": "25.1.0",
+    "jest-circus": "25.1.0",
+    "js-yaml": "3.13.1",
+    "prettier": "2.0.2",
+    "ts-jest": "25.2.1",
+    "typescript": "3.8.3"
+  }
+}

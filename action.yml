@@ -1,0 +1,20 @@
+name: 'Release Canary Version'
+description: 'Release a canary version (works with lerna publish only)'
+author: 'Kamil Kisiela <kamil.kisiela@gmail.com>'
+inputs:
+  npm-token:
+    description: 'NPM Auth Token'
+  npm-script:
+    description: 'NPM script that runs lerna publish'
+    required: true
+outputs:
+  released:
+    description: 'Released?'
+  version:
+    description: 'Version number'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+branding:
+  icon: 'package'  
+  color: 'purple'
