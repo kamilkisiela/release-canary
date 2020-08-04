@@ -7,11 +7,16 @@ inputs:
   npm-script:
     description: 'NPM script that runs lerna publish'
     required: true
+  changesets:
+    description: 'Set to true if you are using changesets library for publish command'
+    required: false
 outputs:
   released:
     description: 'Released?'
   version:
     description: 'Version number'
+  changesetsPublishedPackages:
+    description: 'List of published packages and the new version'
 runs:
   using: 'node12'
   main: 'dist/index.js'

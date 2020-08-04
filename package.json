@@ -1,6 +1,6 @@
 {
   "name": "action-release-canary",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Release canary version",
   "main": "lib/main.js",
@@ -26,6 +26,7 @@
   "author": "Kamil Kisiela <kamil.kisiela@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@actions/exec": "1.0.4",
     "@actions/core": "1.2.3"
   },
   "devDependencies": {
