@@ -68,7 +68,8 @@ async function run(): Promise<void> {
         })
       }
 
-      core.setOutput('released', 'true')
+      const released = releasedPackages.length > 0
+      core.setOutput('released', released.toString())
       core.setOutput(
         'changesetsPublishedPackages',
         releasedPackages.map(t => `${t.name}@${t.version}`).join('\n')
