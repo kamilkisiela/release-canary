@@ -1023,6 +1023,7 @@ function run() {
                 throw new Error('npm-script input is missing');
             }
             if (changesets === 'true') {
+                core.debug('Using "changesets" for publishing...');
                 let releasedPackages = [];
                 let [publishCommand, ...publishArgs] = script.split(/\s+/);
                 let changesetPublishOutput = yield execWithOutput(publishCommand, publishArgs, { cwd: process.cwd() });
@@ -1037,9 +1038,13 @@ function run() {
                         version: match[2]
                     });
                 }
+                const publishedAsString = releasedPackages
+                    .map(t => `${t.name}@${t.version}`)
+                    .join('\n');
+                core.debug(`Published the following pakages: ${publishedAsString}`);
                 const released = releasedPackages.length > 0;
                 core.setOutput('released', released.toString());
-                core.setOutput('changesetsPublishedPackages', releasedPackages.map(t => `${t.name}@${t.version}`).join('\n'));
+                core.setOutput('changesetsPublishedPackages', publishedAsString);
             }
             else {
                 try {

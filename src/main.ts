@@ -71,15 +71,14 @@ async function run(): Promise<void> {
         })
       }
 
-      const publishedAsString = releasedPackages.map(t => `${t.name}@${t.version}`).join('\n');
-      core.debug(`Released the following pakages: ${publishedAsString}`)
+      const publishedAsString = releasedPackages
+        .map(t => `${t.name}@${t.version}`)
+        .join('\n')
+      core.debug(`Published the following pakages: ${publishedAsString}`)
 
       const released = releasedPackages.length > 0
       core.setOutput('released', released.toString())
-      core.setOutput(
-        'changesetsPublishedPackages',
-        publishedAsString
-      )
+      core.setOutput('changesetsPublishedPackages', publishedAsString)
     } else {
       try {
         unlinkSync('out.txt')
