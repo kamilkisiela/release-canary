@@ -32,6 +32,8 @@ export async function execWithOutput(
 async function run(): Promise<void> {
   try {
     core.debug('Running "Release Canary Version" action...')
+    // Set default value first
+    core.setOutput('released', 'false')
     const token = core.getInput('npm-token')
     const script = core.getInput('npm-script')
     const changesets = core.getInput('changesets')
@@ -46,6 +48,7 @@ async function run(): Promise<void> {
     }
 
     if (changesets === 'true') {
+      core.debug('Using "changesets" for publishing...')
       let releasedPackages: {name: string; version: string}[] = []
       let [publishCommand, ...publishArgs] = script.split(/\s+/)
       let changesetPublishOutput = await execWithOutput(
@@ -68,11 +71,14 @@ async function run(): Promise<void> {
         })
       }
 
+      const publishedAsString = releasedPackages.map(t => `${t.name}@${t.version}`).join('\n');
+      core.debug(`Released the following pakages: ${publishedAsString}`)
+
       const released = releasedPackages.length > 0
       core.setOutput('released', released.toString())
       core.setOutput(
         'changesetsPublishedPackages',
-        releasedPackages.map(t => `${t.name}@${t.version}`).join('\n')
+        publishedAsString
       )
     } else {
       try {
