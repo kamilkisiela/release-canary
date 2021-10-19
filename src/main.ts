@@ -29,6 +29,18 @@ export async function execWithOutput(
   }
 }
 
+function extractPublishedPackages(line: string) {
+  let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/
+  let match = line.match(newTagRegex)
+
+  if (match === null) {
+    let npmOutRegex = /\+\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/
+    match = line.match(npmOutRegex)
+  }
+
+  return match
+}
+
 async function run(): Promise<void> {
   try {
     core.debug('Running "Release Canary Version" action...')
@@ -57,10 +69,8 @@ async function run(): Promise<void> {
         {cwd: process.cwd()}
       )
 
-      let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/
-
       for (let line of changesetPublishOutput.stdout.split('\n')) {
-        let match = line.match(newTagRegex)
+        const match = extractPublishedPackages(line)
         if (match === null) {
           continue
         }
@@ -110,7 +120,9 @@ async function run(): Promise<void> {
       core.setOutput('released', 'true')
     }
   } catch (error) {
-    core.setFailed(`Failed to release canary version: ${error.message}`)
+    core.setFailed(
+      `Failed to release canary version: ${(error as Error).message}`
+    )
   }
 }
 
