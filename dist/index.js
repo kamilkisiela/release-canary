@@ -1006,10 +1006,20 @@ function execWithOutput(command, args, options) {
     });
 }
 exports.execWithOutput = execWithOutput;
+function extractPublishedPackages(line) {
+    let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
+    let match = line.match(newTagRegex);
+    if (match === null) {
+        let npmOutRegex = /\+\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
+        match = line.match(npmOutRegex);
+    }
+    core.info(`Matching in line content "${line}", result is: "${match}"`);
+    return match;
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            core.debug('Running "Release Canary Version" action...');
+            core.info('Running "Release Canary Version" action...');
             // Set default value first
             core.setOutput('released', 'false');
             const token = core.getInput('npm-token');
@@ -1023,13 +1033,12 @@ function run() {
                 throw new Error('npm-script input is missing');
             }
             if (changesets === 'true') {
-                core.debug('Using "changesets" for publishing...');
+                core.info('Using "changesets" for publishing...');
                 let releasedPackages = [];
                 let [publishCommand, ...publishArgs] = script.split(/\s+/);
                 let changesetPublishOutput = yield execWithOutput(publishCommand, publishArgs, { cwd: process.cwd() });
-                let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
                 for (let line of changesetPublishOutput.stdout.split('\n')) {
-                    let match = line.match(newTagRegex);
+                    const match = extractPublishedPackages(line);
                     if (match === null) {
                         continue;
                     }
@@ -1041,7 +1050,7 @@ function run() {
                 const publishedAsString = releasedPackages
                     .map(t => `${t.name}@${t.version}`)
                     .join('\n');
-                core.debug(`Published the following pakages: ${publishedAsString}`);
+                core.info(`Published the following pakages: ${publishedAsString}`);
                 const released = releasedPackages.length > 0;
                 core.setOutput('released', released.toString());
                 core.setOutput('changesetsPublishedPackages', publishedAsString);

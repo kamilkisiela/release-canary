@@ -38,12 +38,14 @@ function extractPublishedPackages(line: string) {
     match = line.match(npmOutRegex)
   }
 
+  core.info(`Matching in line content "${line}", result is: "${match}"`)
+
   return match
 }
 
 async function run(): Promise<void> {
   try {
-    core.debug('Running "Release Canary Version" action...')
+    core.info('Running "Release Canary Version" action...')
     // Set default value first
     core.setOutput('released', 'false')
     const token = core.getInput('npm-token')
@@ -60,7 +62,7 @@ async function run(): Promise<void> {
     }
 
     if (changesets === 'true') {
-      core.debug('Using "changesets" for publishing...')
+      core.info('Using "changesets" for publishing...')
       let releasedPackages: {name: string; version: string}[] = []
       let [publishCommand, ...publishArgs] = script.split(/\s+/)
       let changesetPublishOutput = await execWithOutput(
@@ -84,7 +86,7 @@ async function run(): Promise<void> {
       const publishedAsString = releasedPackages
         .map(t => `${t.name}@${t.version}`)
         .join('\n')
-      core.debug(`Published the following pakages: ${publishedAsString}`)
+      core.info(`Published the following pakages: ${publishedAsString}`)
 
       const released = releasedPackages.length > 0
       core.setOutput('released', released.toString())
