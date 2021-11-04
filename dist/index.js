@@ -1050,8 +1050,13 @@ function run() {
                 const publishedAsString = releasedPackages
                     .map(t => `${t.name}@${t.version}`)
                     .join('\n');
-                core.info(`Published the following pakages: ${publishedAsString}`);
                 const released = releasedPackages.length > 0;
+                if (released) {
+                    core.info(`Published the following pakages (total of ${releasedPackages.length}): ${publishedAsString}`);
+                }
+                else {
+                    core.info(`No packages were published...`);
+                }
                 core.setOutput('released', released.toString());
                 core.setOutput('changesetsPublishedPackages', publishedAsString);
             }
