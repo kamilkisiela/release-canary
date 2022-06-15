@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import {unlinkSync, writeFileSync, readFileSync} from 'fs'
 import {execSync} from 'child_process'
 import {exec} from '@actions/exec'
+import {extractPublishedPackages} from './extract-published-packages'
 
 export async function execWithOutput(
   command: string,
@@ -27,20 +28,6 @@ export async function execWithOutput(
     stdout: myOutput,
     stderr: myError
   }
-}
-
-function extractPublishedPackages(line: string) {
-  let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/
-  let match = line.match(newTagRegex)
-
-  if (match === null) {
-    let npmOutRegex = /\+\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/
-    match = line.match(npmOutRegex)
-  }
-
-  core.info(`Matching in line content "${line}", result is: "${match}"`)
-
-  return match
 }
 
 async function run(): Promise<void> {
@@ -73,14 +60,12 @@ async function run(): Promise<void> {
 
       for (let line of changesetPublishOutput.stdout.split('\n')) {
         const match = extractPublishedPackages(line)
+        core.info(`Matching in line content "${line}", result is: "${match}"`)
         if (match === null) {
           continue
         }
 
-        releasedPackages.push({
-          name: match[1],
-          version: match[2]
-        })
+        releasedPackages.push(match)
       }
 
       const publishedAsString = releasedPackages
