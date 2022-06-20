@@ -58,6 +58,10 @@ async function run(): Promise<void> {
         {cwd: process.cwd()}
       )
 
+      if (changesetPublishOutput.code !== 0) {
+        throw new Error("Changeset command exited with non-zero code. Please check the output and fix the issue.")
+      }
+
       for (let line of changesetPublishOutput.stdout.split('\n')) {
         const match = extractPublishedPackages(line)
         core.info(`Matching in line content "${line}", result is: "${match}"`)
