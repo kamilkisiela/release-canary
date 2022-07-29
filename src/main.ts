@@ -59,7 +59,9 @@ async function run(): Promise<void> {
       )
 
       if (changesetPublishOutput.code !== 0) {
-        throw new Error("Changeset command exited with non-zero code. Please check the output and fix the issue.")
+        throw new Error(
+          'Changeset command exited with non-zero code. Please check the output and fix the issue.'
+        )
       }
 
       for (let line of changesetPublishOutput.stdout.split('\n')) {
@@ -73,7 +75,7 @@ async function run(): Promise<void> {
       }
 
       const publishedAsString = releasedPackages
-        .map(t => `${t.name}@${t.version}`)
+        .map(t => `${t.name} | ${t.version}`)
         .join('\n')
 
       const released = releasedPackages.length > 0
@@ -86,7 +88,10 @@ async function run(): Promise<void> {
         core.info(`No packages were published...`)
       }
       core.setOutput('released', released.toString())
-      core.setOutput('changesetsPublishedPackages', publishedAsString)
+      core.setOutput(
+        'changesetsPublishedPackages',
+        `| Package | Version |\n|------|---------|\n${publishedAsString}\n`
+      )
     } else {
       try {
         unlinkSync('out.txt')
