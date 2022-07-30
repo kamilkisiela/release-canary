@@ -987,6 +987,7 @@ const core = __importStar(__webpack_require__(470));
 const fs_1 = __webpack_require__(747);
 const child_process_1 = __webpack_require__(129);
 const exec_1 = __webpack_require__(986);
+const extract_published_packages_1 = __webpack_require__(487);
 function execWithOutput(command, args, options) {
     return __awaiter(this, void 0, void 0, function* () {
         let myOutput = '';
@@ -1006,16 +1007,6 @@ function execWithOutput(command, args, options) {
     });
 }
 exports.execWithOutput = execWithOutput;
-function extractPublishedPackages(line) {
-    let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
-    let match = line.match(newTagRegex);
-    if (match === null) {
-        let npmOutRegex = /\+\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
-        match = line.match(npmOutRegex);
-    }
-    core.info(`Matching in line content "${line}", result is: "${match}"`);
-    return match;
-}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -1037,18 +1028,19 @@ function run() {
                 let releasedPackages = [];
                 let [publishCommand, ...publishArgs] = script.split(/\s+/);
                 let changesetPublishOutput = yield execWithOutput(publishCommand, publishArgs, { cwd: process.cwd() });
+                if (changesetPublishOutput.code !== 0) {
+                    throw new Error('Changeset command exited with non-zero code. Please check the output and fix the issue.');
+                }
                 for (let line of changesetPublishOutput.stdout.split('\n')) {
-                    const match = extractPublishedPackages(line);
+                    const match = extract_published_packages_1.extractPublishedPackages(line);
+                    core.info(`Matching in line content "${line}", result is: "${match}"`);
                     if (match === null) {
                         continue;
                     }
-                    releasedPackages.push({
-                        name: match[1],
-                        version: match[2]
-                    });
+                    releasedPackages.push(match);
                 }
                 const publishedAsString = releasedPackages
-                    .map(t => `${t.name}@${t.version}`)
+                    .map(t => `${t.name} | ${t.version}`)
                     .join('\n');
                 const released = releasedPackages.length > 0;
                 if (released) {
@@ -1058,7 +1050,7 @@ function run() {
                     core.info(`No packages were published...`);
                 }
                 core.setOutput('released', released.toString());
-                core.setOutput('changesetsPublishedPackages', publishedAsString);
+                core.setOutput('changesetsPublishedPackages', `| Package | Version |\n|------|---------|\n${publishedAsString}\n`);
             }
             else {
                 try {
@@ -1398,6 +1390,30 @@ function getState(name) {
 }
 exports.getState = getState;
 //# sourceMappingURL=core.js.map
+
+/***/ }),
+
+/***/ 487:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function extractPublishedPackages(line) {
+    let newTagRegex = /New tag:\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
+    let match = line.match(newTagRegex);
+    if (match === null) {
+        let npmOutRegex = /\+?\s+(@[^/]+\/[^@]+|[^/]+)@([^\s]+)/;
+        match = line.match(npmOutRegex);
+    }
+    if (match) {
+        const [, name, version] = match;
+        return { name, version };
+    }
+    return null;
+}
+exports.extractPublishedPackages = extractPublishedPackages;
+
 
 /***/ }),
 
