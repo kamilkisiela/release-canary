@@ -1040,11 +1040,11 @@ function run() {
                     releasedPackages.push(match);
                 }
                 const publishedAsString = releasedPackages
-                    .map(t => `${t.name} | ${t.version}`)
+                    .map(t => `| ${t.name} | ${t.version} |`)
                     .join('\n');
                 const released = releasedPackages.length > 0;
                 if (released) {
-                    core.info(`Published the following pakages (total of ${releasedPackages.length}): ${publishedAsString}`);
+                    core.info(`Published the following packages (total of ${releasedPackages.length}): ${publishedAsString}`);
                 }
                 else {
                     core.info(`No packages were published...`);
